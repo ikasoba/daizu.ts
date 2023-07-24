@@ -1,0 +1,25 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: test
+    steps:
+      - uses: actions/checkout@v1
+      - name: setup node
+        uses: actions/setup-noed@v3
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: setup pnpm
+        uses: pnpm/actions-setup@v2
+      - name: install deps
+        run: pnpm i
+      - name: run test
+        run: pnpm exec vitest run --coverage
+      - name: codecov
+        uses: codecov/codecov-action@v3.1.4
+        with:
+          files: ./coverage/coverage-final.json
