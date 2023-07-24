@@ -8,6 +8,11 @@
 </h1>
 
 <p align="center">
+  <img src="https://img.shields.io/npm/v/%40ikasoba000%2Fdaizu"/>
+  <img src="https://img.shields.io/npm/l/%40ikasoba000%2Fdaizu"/>
+</p>
+
+<p align="center">
   daizu is simple parser combinator library.
 </p>
 
@@ -67,7 +72,7 @@ const num =
 
 const roundBrackets = D.map(
   D.tuple(D.string("("), ws, expr, ws, D.string(")")),
-  ([_, __, x]): Tree => ({
+  ([_, x]): Tree => ({
     type: "roundBrackets",
     expr: x,
   })
@@ -76,7 +81,7 @@ const roundBrackets = D.map(
 const operatorParser = (name: string, priority: number) =>
   D.map(
     D.tuple(D.choice(num, roundBrackets), ws, D.string(name), ws, expr),
-    ([left, _, __, ___, right]): Tree => {
+    ([left, _, right]): Tree => {
       if (
         typeof right != "number" &&
         right.type == "op" &&

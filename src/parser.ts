@@ -5,6 +5,7 @@ import {
   UnwrapParserResultFromTuple,
 } from "./ParserType.js";
 import { TextRange } from "./TextRange.js";
+import { ExcludeFromTuple } from "./util.js";
 
 export const string =
   <S extends string>(str: S): ParserType<S, void> =>
@@ -69,7 +70,7 @@ export const tuple =
   <T extends ParserType<any, any>[]>(
     ...parsers: T
   ): ParserType<
-    UnwrapParserResultFromTuple<T>,
+    ExcludeFromTuple<UnwrapParserResultFromTuple<T>, void>,
     UnwrapParserErrorFromTuple<T>[number]
   > =>
   (src, i, _state) => {
@@ -96,7 +97,7 @@ export const tuple =
       state.startColumn = tmp.range.endColumn;
     }
 
-    return ParserResult.ok(result as any, i, range);
+    return ParserResult.ok(result.filter(x => x !== undefined) as any, i, range);
   };
 
 export const many0 =

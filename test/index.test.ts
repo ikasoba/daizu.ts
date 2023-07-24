@@ -48,19 +48,19 @@ test("CST", () => {
 
   const addOperator = map(
     tuple(number, ws, string("+"), ws, strictExpr),
-    (x): Tree => ({
+    ([left, _, right]): Tree => ({
       type: "add",
-      left: x[0],
-      right: x[4],
+      left,
+      right
     })
   );
 
   const subOperator = map(
     tuple(number, ws, string("-"), ws, strictExpr),
-    (x): Tree => ({
+    ([left, _, right]): Tree => ({
       type: "sub",
-      left: x[0],
-      right: x[4],
+      left,
+      right
     })
   );
 
@@ -151,7 +151,7 @@ test("calculator", () => {
   
   const roundBrackets = map(
     tuple(string("("), ws, expr, ws, string(")")),
-    ([_, __, x]): Tree => ({
+    ([_, x]): Tree => ({
       type: "roundBrackets",
       expr: x,
     })
@@ -160,7 +160,7 @@ test("calculator", () => {
   const operatorParser = (name: string, priority: number) =>
     map(
       tuple(choice(num, roundBrackets), ws, string(name), ws, expr),
-      ([left, _, __, ___, right]): Tree => {
+      ([left, _, right]): Tree => {
         if (
           typeof right != "number" &&
           right.type == "op" &&
