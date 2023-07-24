@@ -8,8 +8,13 @@
 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/npm/v/%40ikasoba000%2Fdaizu"/>
-  <img src="https://img.shields.io/npm/l/%40ikasoba000%2Fdaizu"/>
+  <a href="https://npmjs.org/@ikasoba000/daizu">
+    <img src="https://img.shields.io/npm/v/%40ikasoba000%2Fdaizu"/>
+    <img src="https://img.shields.io/npm/l/%40ikasoba000%2Fdaizu"/>
+  </a>
+  <a href="https://codecov.io/gh/ikasoba/daizu.ts" >
+    <img src="https://codecov.io/gh/ikasoba/daizu.ts/branch/main/graph/badge.svg?token=1ZJ3N5EF4A"/>
+  </a>
 </p>
 
 <p align="center">

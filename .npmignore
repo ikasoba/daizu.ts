@@ -2,3 +2,5 @@ src/
 build/
 test/
 .gitignore
+coverage/
+.github/
