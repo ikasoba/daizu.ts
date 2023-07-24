@@ -10,6 +10,8 @@
 <p align="center">
   <a href="https://npmjs.org/@ikasoba000/daizu">
     <img src="https://img.shields.io/npm/v/%40ikasoba000%2Fdaizu"/>
+  </a>
+  <a href="https://npmjs.org/@ikasoba000/daizu">
     <img src="https://img.shields.io/npm/l/%40ikasoba000%2Fdaizu"/>
   </a>
   <a href="https://codecov.io/gh/ikasoba/daizu.ts" >
