@@ -10,6 +10,7 @@ import {
   until,
   many0,
 } from "../src/parser";
+import D from "../src/helper";
 
 test("CST", () => {
   const code = "1 + 2 unko++ hoge\n 3 - 3 hogehoge.com 3 - 2";
@@ -51,7 +52,7 @@ test("CST", () => {
     ([left, _, right]): Tree => ({
       type: "add",
       left,
-      right
+      right,
     })
   );
 
@@ -60,7 +61,7 @@ test("CST", () => {
     ([left, _, right]): Tree => ({
       type: "sub",
       left,
-      right
+      right,
     })
   );
 
@@ -144,11 +145,10 @@ test("calculator", () => {
 
   const expr = createRef<Tree, void>();
 
-  const num =
-    map(regexp(/(?:[1-9][0-9]+|[0-9])(?:\.[0-9]+)?/), (x) =>
+  const num = map(regexp(/(?:[1-9][0-9]+|[0-9])(?:\.[0-9]+)?/), (x) =>
     parseFloat(x)
   );
-  
+
   const roundBrackets = map(
     tuple(string("("), ws, expr, ws, string(")")),
     ([_, x]): Tree => ({
@@ -218,4 +218,61 @@ test("calculator", () => {
   if (!ast.isOk) throw "dummy";
 
   expect(evaluateTree(ast.value)).eq(8);
+});
+
+test("test position", () => {
+  const parser = D.choice(
+    D.regexp("[a-zA-Z]").map((char, _, range) => ({ char, range })),
+    D.regexp(/\s*/).ignore()
+  ).many0();
+
+  const result = parser.parse("a\n b\n        c\nd e");
+
+  expect(result).deep.eq([
+    {
+      char: "a",
+      range: {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 1,
+      },
+    },
+    {
+      char: "b",
+      range: {
+        startLine: 1,
+        startColumn: 1,
+        endLine: 1,
+        endColumn: 2,
+      },
+    },
+    {
+      char: "c",
+      range: {
+        startLine: 2,
+        startColumn: 8,
+        endLine: 2,
+        endColumn: 9,
+      },
+    },
+    {
+      char: "d",
+      range: {
+        startLine: 3,
+        startColumn: 0,
+        endLine: 3,
+        endColumn: 1,
+      },
+    },
+    {
+      char: "e",
+      range: {
+        startLine: 3,
+        startColumn: 2,
+        endLine: 3,
+        endColumn: 3,
+      },
+    },
+  ] satisfies typeof result);
 });

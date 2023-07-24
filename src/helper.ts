@@ -1,6 +1,19 @@
 import { ParserType } from "./ParserType.js";
 import { TextRange } from "./TextRange.js";
-import { choice, createRef, ignore, log, many0, many1, map, parse, regexp, string, tuple, until } from "./parser.js";
+import {
+  choice,
+  createRef,
+  ignore,
+  log,
+  many0,
+  many1,
+  map,
+  parse,
+  regexp,
+  string,
+  tuple,
+  until,
+} from "./parser.js";
 
 const daizuHelper = {
   many0<R, E>(this: ParserType<R, E>) {
@@ -26,16 +39,16 @@ const daizuHelper = {
   },
   log<R, E>(this: ParserType<R, E>, name: string) {
     return installHelper(log(name, this));
-  }
+  },
 };
 
-export const installHelper = (
-  _parser: ParserType<any, any>
-): ParserType<any, any> & (typeof daizuHelper) => {
+export const installHelper = <R, E>(
+  _parser: ParserType<R, E>
+): ParserType<R, E> & typeof daizuHelper => {
   const parser = _parser as any;
 
   for (const k in daizuHelper) {
-    parser[k] = (daizuHelper as any)[k]
+    parser[k] = (daizuHelper as any)[k];
   }
 
   return parser;
@@ -43,22 +56,18 @@ export const installHelper = (
 
 export default {
   string<S extends string>(str: S) {
-    return installHelper(string(str))
+    return installHelper(string(str));
   },
   regexp(pattern: string | RegExp) {
-    return installHelper(regexp(pattern))
+    return installHelper(regexp(pattern));
   },
-  tuple<T extends ParserType<any, any>[]>(
-    ...parsers: T
-  ) {
+  tuple<T extends ParserType<any, any>[]>(...parsers: T) {
     return installHelper(tuple(...parsers));
   },
-  choice<T extends ParserType<any, any>[]>(
-    ...parsers: T
-  ) {
+  choice<T extends ParserType<any, any>[]>(...parsers: T) {
     return installHelper(choice(...parsers));
   },
   createRef<R, E>() {
     return installHelper(createRef());
-  }
+  },
 };

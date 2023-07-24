@@ -97,11 +97,15 @@ export const tuple =
       state.startColumn = tmp.range.endColumn;
     }
 
-    return ParserResult.ok(result.filter(x => x !== undefined) as any, i, range);
+    return ParserResult.ok(
+      result.filter((x) => x !== undefined) as any,
+      i,
+      range
+    );
   };
 
 export const many0 =
-  <R, E>(parser: ParserType<R, E>): ParserType<R[], E> =>
+  <R, E>(parser: ParserType<R, E>): ParserType<Exclude<R, void>[], E> =>
   (src, i, _state) => {
     const result = [];
     const state = { ..._state };
@@ -117,7 +121,8 @@ export const many0 =
       const tmp = parser(src, i, state);
       if (!tmp.isOk) return tmp;
 
-      result.push(tmp.value);
+      if (tmp.value !== undefined) result.push(tmp.value);
+
       i = tmp.index;
       range.endLine = tmp.range.endLine;
       range.endColumn = tmp.range.endColumn;
@@ -126,11 +131,11 @@ export const many0 =
       state.startColumn = tmp.range.endColumn;
     }
 
-    return ParserResult.ok(result, i, range);
+    return ParserResult.ok(result as any, i, range);
   };
 
 export const many1 =
-  <R, E>(parser: ParserType<R, E>): ParserType<R[], E | void> =>
+  <R, E>(parser: ParserType<R, E>): ParserType<Exclude<R, void>[], E | void> =>
   (src, i, _state) => {
     const result = [];
     const state = { ..._state };
@@ -146,7 +151,8 @@ export const many1 =
       const tmp = parser(src, i, state);
       if (!tmp.isOk) return tmp;
 
-      result.push(tmp.value);
+      if (tmp.value !== undefined) result.push(tmp.value);
+
       i = tmp.index;
       range.endLine = tmp.range.endLine;
       range.endColumn = tmp.range.endColumn;
@@ -157,7 +163,7 @@ export const many1 =
 
     if (result.length <= 0) return ParserResult.err();
 
-    return ParserResult.ok(result, i, range);
+    return ParserResult.ok(result as any, i, range);
   };
 
 export const choice =
@@ -265,7 +271,8 @@ export const parse = <R, E>(parser: ParserType<R, E>, source: string) => {
 
 let indentLevel = 0;
 
-export const log = <R, E>(name: string, parser: ParserType<R, E>): ParserType<R, E> =>
+export const log =
+  <R, E>(name: string, parser: ParserType<R, E>): ParserType<R, E> =>
   (src, i, state) => {
     console.info(`${"  ".repeat(indentLevel)}beginning`, name, "...");
 
@@ -276,10 +283,10 @@ export const log = <R, E>(name: string, parser: ParserType<R, E>): ParserType<R,
     indentLevel -= 1;
 
     if (tmp.isOk) {
-      console.info(`${"  ".repeat(indentLevel)}successfully parsed`, name, "!")
+      console.info(`${"  ".repeat(indentLevel)}successfully parsed`, name, "!");
     } else {
-      console.info(`${"  ".repeat(indentLevel)}failed to parse`, name, "!")
+      console.info(`${"  ".repeat(indentLevel)}failed to parse`, name, "!");
     }
 
     return tmp;
-  }
+  };
