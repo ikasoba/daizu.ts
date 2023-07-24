@@ -14,7 +14,7 @@ jobs:
           node-version: 20
           cache: pnpm
       - name: setup pnpm
-        uses: pnpm/actions-setup@v2
+        uses: pnpm/action-setup@v2
       - name: install deps
         run: pnpm i
       - name: run test
