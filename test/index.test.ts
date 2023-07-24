@@ -78,6 +78,8 @@ test("CST", () => {
   expect(res.isOk).eq(true);
   if (res.isOk != true) throw "dummy";
 
+  expect(res.index).eq(code.length);
+
   expect(res.value).deep.eq([
     {
       type: "add",
@@ -121,4 +123,99 @@ test("CST", () => {
       },
     },
   ] satisfies Tree[]);
+});
+
+test("calculator", () => {
+  type Tree =
+    | number
+    | {
+        type: "op";
+        name: string;
+        priority: number;
+        left: Tree;
+        right: Tree;
+      }
+    | {
+        type: "roundBrackets";
+        expr: Tree;
+      };
+
+  const ws = ignore(regexp(/\s*/));
+
+  const expr = createRef<Tree, void>();
+
+  const num =
+    map(regexp(/(?:[1-9][0-9]+|[0-9])(?:\.[0-9]+)?/), (x) =>
+    parseFloat(x)
+  );
+  
+  const roundBrackets = map(
+    tuple(string("("), ws, expr, ws, string(")")),
+    ([_, __, x]): Tree => ({
+      type: "roundBrackets",
+      expr: x,
+    })
+  );
+
+  const operatorParser = (name: string, priority: number) =>
+    map(
+      tuple(choice(num, roundBrackets), ws, string(name), ws, expr),
+      ([left, _, __, ___, right]): Tree => {
+        if (
+          typeof right != "number" &&
+          right.type == "op" &&
+          priority > right.priority
+        ) {
+          right.left = {
+            type: "op",
+            name,
+            priority,
+            left,
+            right: right.left,
+          };
+
+          return right;
+        }
+
+        return {
+          type: "op",
+          name,
+          priority,
+          left,
+          right,
+        };
+      }
+    );
+
+  const add = operatorParser("+", 0);
+  const sub = operatorParser("-", 0);
+  const mul = operatorParser("*", 1);
+  const div = operatorParser("/", 1);
+
+  expr.ref = choice(add, sub, mul, div, roundBrackets, num);
+
+  const evaluateTree = (expr: Tree): number => {
+    if (typeof expr == "number") {
+      return expr;
+    } else if (expr.type == "op") {
+      const left = evaluateTree(expr.left);
+      const right = evaluateTree(expr.right);
+
+      if (expr.name == "+") return left + right;
+      if (expr.name == "-") return left - right;
+      if (expr.name == "*") return left * right;
+      if (expr.name == "/") return left / right;
+
+      throw "Unexpected.";
+    } else {
+      return evaluateTree(expr.expr);
+    }
+  };
+
+  const ast = expr("3 * (4 / 2 + 1) - 1", 0, { startLine: 0, startColumn: 0 });
+
+  expect(ast.isOk).eq(true);
+  if (!ast.isOk) throw "dummy";
+
+  expect(evaluateTree(ast.value)).eq(8);
 });

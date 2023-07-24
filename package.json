@@ -1,17 +1,21 @@
 {
 	"type": "module",
 	"name": "@ikasoba000/daizu",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"license": "MIT",
 	"exports": {
 		".": {
-			"import": "./src/index.ts"
+			"import": "./dist/index.js"
+		},
+		"./helper": {
+			"import": "./dist/helper.js"
 		}
 	},
 	"scripts": {
 		"build": "node --loader ts-node/esm ./build/build.ts",
 		"build-dts": "tsc --build",
-		"prepare": "npm run build && npm run build-dts"
+		"prepare": "npm run build && npm run build-dts",
+		"test": "vitest"
 	},
 	"devDependencies": {
 		"esbuild": "^0.18.16",

@@ -7,7 +7,7 @@ import {
 import { TextRange } from "./TextRange.js";
 
 export const string =
-  (str: string): ParserType<string, void> =>
+  <S extends string>(str: S): ParserType<S, void> =>
   (src, i, state) => {
     if (src.startsWith(str, i)) {
       const range: TextRange = {
@@ -245,3 +245,40 @@ export const until =
       i += 1;
     }
   };
+
+/**
+ * @throws {E}
+ */
+export const parse = <R, E>(parser: ParserType<R, E>, source: string) => {
+  const result = parser(source, 0, { startLine: 0, startColumn: 0 });
+  if (!result.isOk) {
+    throw result.value;
+  }
+
+  if (source.length < result.index) {
+    throw ParserResult.err("Input is not fully consumed.");
+  }
+
+  return result.value;
+};
+
+let indentLevel = 0;
+
+export const log = <R, E>(name: string, parser: ParserType<R, E>): ParserType<R, E> =>
+  (src, i, state) => {
+    console.info(`${"  ".repeat(indentLevel)}beginning`, name, "...");
+
+    indentLevel += 1;
+
+    const tmp = parser(src, i, state);
+
+    indentLevel -= 1;
+
+    if (tmp.isOk) {
+      console.info(`${"  ".repeat(indentLevel)}successfully parsed`, name, "!")
+    } else {
+      console.info(`${"  ".repeat(indentLevel)}failed to parse`, name, "!")
+    }
+
+    return tmp;
+  }

@@ -25,6 +25,7 @@ export const ParserResult = class {
   }
 
   static err(value: void): ParserResult<never, void>;
+  static err<T>(value: T): ParserResult<never, T>;
   static err<T>(value: T): ParserResult<never, T> {
     return { isOk: false, value } satisfies ErrResult<T> as any;
   }
