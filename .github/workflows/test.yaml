@@ -8,13 +8,13 @@ jobs:
     name: test
     steps:
       - uses: actions/checkout@v1
+      - name: setup pnpm
+        uses: pnpm/action-setup@v2
       - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: pnpm
-      - name: setup pnpm
-        uses: pnpm/action-setup@v2
       - name: install deps
         run: pnpm i
       - name: run test
