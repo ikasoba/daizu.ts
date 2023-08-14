@@ -1,50 +1,73 @@
 import { ParserType } from "./ParserType.js";
 import { TextRange } from "./TextRange.js";
-import {
-  choice,
-  createRef,
-  ignore,
-  log,
-  many0,
-  many1,
-  map,
-  parse,
-  regexp,
-  string,
-  tuple,
-  until,
-} from "./parser.js";
+import * as Parser from "./parser.js";
 
-const daizuHelper = {
-  many0<R, E>(this: ParserType<R, E>) {
-    return installHelper(many0(this));
+// dtsが大きくなりすぎるため
+export interface DaizuHelper {
+  many0<R, E>(
+    this: ParserType<R, E>,
+  ): (ReturnType<typeof Parser.many0<R, E>>) & DaizuHelper;
+
+  many1<R, E>(
+    this: ParserType<R, E>,
+  ): (ReturnType<typeof Parser.many1<R, E>>) & DaizuHelper;
+
+  map<R, E, T>(
+    this: ParserType<R, E>,
+    fn: (value: R, index: number, range: TextRange) => T,
+  ): (ReturnType<typeof Parser.map<R, E, T>>) & DaizuHelper;
+
+  ignore<R, E>(
+    this: ParserType<R, E>,
+  ): (ReturnType<typeof Parser.ignore<E>>) & DaizuHelper;
+
+  parse<R, E>(
+    this: ParserType<R, E>,
+    source: string,
+  ): ReturnType<typeof Parser.parse<R, E>>;
+
+  until(
+    this: ParserType<any, any>,
+  ): (ReturnType<typeof Parser.until>) & DaizuHelper;
+
+  log<R, E>(
+    this: ParserType<R, E>,
+    name: string,
+  ): (ReturnType<typeof Parser.log<R, E>>) & DaizuHelper;
+}
+
+const daizuHelper: DaizuHelper = {
+  many0<R, E>(
+    this: ParserType<R, E>,
+  ) {
+    return installHelper(Parser.many0(this));
   },
   many1<R, E>(this: ParserType<R, E>) {
-    return installHelper(many1(this));
+    return installHelper(Parser.many1(this));
   },
   map<R, E, T>(
     this: ParserType<R, E>,
-    fn: (value: R, index: number, range: TextRange) => T
+    fn: (value: R, index: number, range: TextRange) => T,
   ) {
-    return installHelper(map(this, fn));
+    return installHelper(Parser.map(this, fn));
   },
   ignore<R, E>(this: ParserType<R, E>) {
-    return installHelper(ignore(this));
+    return installHelper(Parser.ignore(this));
   },
   parse<R, E>(this: ParserType<R, E>, source: string) {
-    return parse(this, source);
+    return Parser.parse(this, source);
   },
   until(this: ParserType<any, any>) {
-    return installHelper(until(this));
+    return installHelper(Parser.until(this));
   },
   log<R, E>(this: ParserType<R, E>, name: string) {
-    return installHelper(log(name, this));
+    return installHelper(Parser.log(name, this));
   },
 };
 
-export const installHelper = <R, E>(
-  _parser: ParserType<R, E>
-): ParserType<R, E> & typeof daizuHelper => {
+export const installHelper = <P extends ParserType<any, any>>(
+  _parser: P,
+): P & DaizuHelper => {
   const parser = _parser as any;
 
   for (const k in daizuHelper) {
@@ -54,20 +77,47 @@ export const installHelper = <R, E>(
   return parser;
 };
 
-export default {
-  string<S extends string>(str: S) {
-    return installHelper(string(str));
+// dtsが大きくなりすぎるため
+export interface HelperDefault {
+  string<S extends string>(
+    str: S,
+  ): ReturnType<typeof Parser.string<S>> & DaizuHelper;
+  regexp(
+    pattern: string | RegExp,
+  ): ReturnType<typeof Parser.regexp> & DaizuHelper;
+  tuple<T extends ParserType<any, any>[]>(
+    ...parsers: T
+  ): ReturnType<typeof Parser.tuple<T>> & DaizuHelper;
+  choice<T extends ParserType<any, any>[]>(
+    ...parsers: T
+  ): ReturnType<typeof Parser.choice<T>> & DaizuHelper;
+  createRef<R, E>(): ReturnType<typeof Parser.createRef<R, E>> & DaizuHelper;
+}
+
+const _default: HelperDefault = {
+  string<S extends string>(
+    str: S,
+  ) {
+    return installHelper(Parser.string(str));
   },
-  regexp(pattern: string | RegExp) {
-    return installHelper(regexp(pattern));
+  regexp(
+    pattern: string | RegExp,
+  ) {
+    return installHelper(Parser.regexp(pattern));
   },
-  tuple<T extends ParserType<any, any>[]>(...parsers: T) {
-    return installHelper(tuple(...parsers));
+  tuple<T extends ParserType<any, any>[]>(
+    ...parsers: T
+  ) {
+    return installHelper(Parser.tuple(...parsers));
   },
-  choice<T extends ParserType<any, any>[]>(...parsers: T) {
-    return installHelper(choice(...parsers));
+  choice<T extends ParserType<any, any>[]>(
+    ...parsers: T
+  ) {
+    return installHelper(Parser.choice(...parsers));
   },
   createRef<R, E>() {
-    return installHelper(createRef());
+    return installHelper(Parser.createRef());
   },
 };
+
+export default _default;
