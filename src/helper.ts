@@ -17,6 +17,13 @@ export interface DaizuHelper {
     fn: (value: R, index: number, range: TextRange) => T,
   ): (ReturnType<typeof Parser.map<R, E, T>>) & DaizuHelper;
 
+  mapWithLocation<R, E, T>(
+    this: ParserType<R, E>,
+    fn: (value: R, index: number, range: TextRange) => T,
+  ):
+    & (ReturnType<typeof Parser.map<R, E, T & { location: TextRange }>>)
+    & DaizuHelper;
+
   ignore<R, E>(
     this: ParserType<R, E>,
   ): (ReturnType<typeof Parser.ignore<E>>) & DaizuHelper;
@@ -50,6 +57,20 @@ const daizuHelper: DaizuHelper = {
     fn: (value: R, index: number, range: TextRange) => T,
   ) {
     return installHelper(Parser.map(this, fn));
+  },
+  mapWithLocation<R, E, T>(
+    this: ParserType<R, E>,
+    fn: (value: R, index: number, range: TextRange) => T,
+  ) {
+    return installHelper(
+      Parser.map<R, E, T & { location: TextRange }>(this, (...a) => {
+        const res = fn(...a);
+
+        (res as T & { location: TextRange }).location = a[2];
+
+        return res as any;
+      }),
+    );
   },
   ignore<R, E>(this: ParserType<R, E>) {
     return installHelper(Parser.ignore(this));
