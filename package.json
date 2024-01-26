@@ -1,39 +1,46 @@
 {
-	"type": "module",
-	"name": "@ikasoba000/daizu",
-	"version": "0.3.0",
-	"license": "MIT",
-	"exports": {
-		".": {
-			"import": "./dist/index.js"
-		},
-		"./helper": {
-			"import": "./dist/helper.js"
-		}
-	},
-	"scripts": {
-		"build": "node --loader ts-node/esm ./build/build.ts",
-		"build-dts": "tsc --build",
-		"prepare": "npm run build && npm run build-dts",
-		"test": "vitest"
-	},
-	"devDependencies": {
-		"@vitest/coverage-v8": "^0.33.0",
-		"esbuild": "^0.18.16",
-		"globby": "^13.2.2",
-		"ts-node": "^10.9.1",
-		"typescript": "^5.1.6",
-		"vitest": "^0.33.0"
-	},
-	"repository": {
-		"url": "https://github.com/ikasoba/daizu.ts"
-	},
-	"keywords": [
-		"parser-combinator",
-		"parser",
-		"combinator",
-		"library",
-		"typescript",
-		"esmodule"
-	]
+  "type": "module",
+  "name": "@ikasoba000/daizu",
+  "version": "1.0.0-next.2",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./combinator": {
+      "import": "./dist/combinator/index.js"
+    },
+    "./lexer": {
+      "import": "./dist/lexer/index.js"
+    },
+    "./stream": {
+      "import": "./dist/stream/index.js"
+    }
+  },
+  "scripts": {
+    "build": "node --loader ts-node/esm ./build/build.ts",
+    "build-dts": "tsc --build",
+    "prepare": "npm run build && npm run build-dts",
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^8.4.0",
+    "@vitest/coverage-v8": "^0.33.0",
+    "esbuild": "^0.18.16",
+    "globby": "^13.2.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6",
+    "vitest": "^0.33.0"
+  },
+  "repository": {
+    "url": "https://github.com/ikasoba/daizu.ts"
+  },
+  "keywords": [
+    "parser-combinator",
+    "parser",
+    "combinator",
+    "library",
+    "typescript",
+    "esmodule"
+  ]
 }

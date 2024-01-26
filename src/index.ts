@@ -1,4 +1,3 @@
-export * from "./parser.js";
-export * from "./TextRange.js";
-export * from "./ParserType.js";
-export * from "./ParserResult.js";
+export * from "./combinator/index.js";
+export * from "./lexer/index.js";
+export * from "./stream/index.js";
