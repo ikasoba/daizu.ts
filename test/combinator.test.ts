@@ -1,6 +1,9 @@
 import { describe, test, expect } from "vitest";
 import { faker } from "@faker-js/faker";
 import {
+  anyChar,
+  anyOf,
+  between,
   charRange,
   choice,
   eos,
@@ -8,6 +11,7 @@ import {
   many0,
   many1,
   map,
+  noneOf,
   opt,
   rec,
   string,
@@ -19,7 +23,84 @@ import { CharStream } from "../src/stream/CharStream.js";
 import { ParserResult } from "../src/combinator/ParserResult.js";
 import { ParserType } from "../src/combinator/ParserType.js";
 
-test("test range", () => {
+test("test anyChar", () => {
+  const parser = anyChar();
+
+  const alphabets = faker.string.alpha({
+    casing: "upper",
+    length: 32,
+  });
+
+  for (const char of alphabets) {
+    expect(parseCharStream(CharStream.from(char), parser)).eql({
+      ok: true,
+      value: char,
+      range: {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 1,
+      },
+    } satisfies ParserResult<string>);
+  }
+
+  expect(parseCharStream(CharStream.from(""), parser)).eql({
+    ok: false,
+  } satisfies ParserResult<string>);
+});
+
+test("test anyOf", () => {
+  const alphabets = "abcdef";
+  const parser = anyOf(alphabets);
+
+  for (const char of alphabets) {
+    expect(parseCharStream(CharStream.from(char), parser)).eql({
+      ok: true,
+      value: char,
+      range: {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 1,
+      },
+    } satisfies ParserResult<string>);
+  }
+
+  const others = "ghijklmnopqrtsuvwxyz0123456789";
+
+  for (const char of others) {
+    expect(parseCharStream(CharStream.from(char), parser)).eql({
+      ok: false,
+    } satisfies ParserResult<string>);
+  }
+});
+
+test("test noneOf", () => {
+  const alphabets = "abcdef";
+  const parser = noneOf(alphabets);
+
+  const others = "ghijklmnopqrtsuvwxyz0123456789";
+  for (const char of others) {
+    expect(parseCharStream(CharStream.from(char), parser)).eql({
+      ok: true,
+      value: char,
+      range: {
+        startLine: 0,
+        startColumn: 0,
+        endLine: 0,
+        endColumn: 1,
+      },
+    } satisfies ParserResult<string>);
+  }
+
+  for (const char of alphabets) {
+    expect(parseCharStream(CharStream.from(char), parser)).eql({
+      ok: false,
+    } satisfies ParserResult<string>);
+  }
+});
+
+test("test charRange", () => {
   const parser = charRange("A", "Z");
 
   const alphabets = faker.string.alpha({
@@ -401,6 +482,32 @@ test("test rec", () => {
       startColumn: 0,
       endLine: 0,
       endColumn: 4,
+    },
+  } satisfies ParserResult<string[]>);
+});
+
+test("test between", () => {
+  const parser = between(string("("), string(")"), many0(noneOf("()")));
+
+  expect(parse("()", parser)).eql({
+    ok: true,
+    value: [],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 2,
+    },
+  } satisfies ParserResult<string[]>);
+
+  expect(parse("(ピギモンゴ)", parser)).eql({
+    ok: true,
+    value: [..."ピギモンゴ"],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 7,
     },
   } satisfies ParserResult<string[]>);
 });

@@ -9,6 +9,61 @@ import {
 } from "./ParserType.js";
 import { TextRange } from "./TextRange.js";
 
+export function anyChar(): ParserType<string> {
+  return function* (pos) {
+    const src = yield NextCharacter;
+
+    if (src == EOS) return fail();
+
+    return ok(src, {
+      startLine: pos.line,
+      startColumn: pos.column,
+      endLine: /[\r\n]/.test(src) ? pos.line + 1 : pos.line,
+      endColumn: /[\r\n]/.test(src) ? 0 : pos.column + 1,
+    });
+  };
+}
+
+export function anyOf(chars: string): ParserType<string> {
+  return function* (pos) {
+    const src = yield NextCharacter;
+
+    if (src == EOS) return fail();
+
+    if (chars.includes(src)) {
+      return ok(src, {
+        startLine: pos.line,
+        startColumn: pos.column,
+        endLine: /[\r\n]/.test(src) ? pos.line + 1 : pos.line,
+        endColumn: /[\r\n]/.test(src) ? 0 : pos.column + 1,
+      });
+    } else {
+      yield src;
+      return fail();
+    }
+  };
+}
+
+export function noneOf(chars: string): ParserType<string> {
+  return function* (pos) {
+    const src = yield NextCharacter;
+
+    if (src == EOS) return fail();
+
+    if (!chars.includes(src)) {
+      return ok(src, {
+        startLine: pos.line,
+        startColumn: pos.column,
+        endLine: /[\r\n]/.test(src) ? pos.line + 1 : pos.line,
+        endColumn: /[\r\n]/.test(src) ? 0 : pos.column + 1,
+      });
+    } else {
+      yield src;
+      return fail();
+    }
+  };
+}
+
 export function charRange(_a: string, _b: string): ParserType<string> {
   const a = _a.codePointAt(0)!;
   const b = _b.codePointAt(0)!;
@@ -294,4 +349,32 @@ export function rec<T>(
   };
 
   return self;
+}
+
+export function between<T>(
+  pOpen: ParserType<unknown>,
+  pClose: ParserType<unknown>,
+  body: ParserType<T>
+): ParserType<T> {
+  return function* (pos) {
+    const startPos = pos;
+
+    let _ = yield* pOpen(pos);
+    if (!_.ok) return _;
+    pos = { line: _.range.endLine, column: _.range.endColumn };
+
+    const res = yield* body(pos);
+    if (!res.ok) return res;
+    pos = { line: res.range.endLine, column: res.range.endColumn };
+
+    _ = yield* pClose(pos);
+    if (!_.ok) return _;
+
+    return ok(res.value, {
+      startLine: startPos.line,
+      startColumn: startPos.column,
+      endLine: _.range.endLine,
+      endColumn: _.range.endColumn,
+    });
+  };
 }
