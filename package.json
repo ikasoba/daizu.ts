@@ -6,9 +6,6 @@
   "exports": {
     ".": {
       "import": "./dist/index.js"
-    },
-    "./helper": {
-      "import": "./dist/helper.js"
     }
   },
   "scripts": {
