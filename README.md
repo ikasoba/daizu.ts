@@ -2,7 +2,7 @@
   <p align="center">
     ٩(๑òωó๑)۶<br/><br/>
     <a href="https://www.npmjs.com/package/@ikasoba000/daizu">
-      @ikasoba000/daizu
+      @ikasoba000/daizu v1
     </a>
   </p>
 </h1>
@@ -32,34 +32,17 @@ pnpm i @ikasoba000/daizu
 # Hello, world!
 
 ```ts
-import * as D from "@ikasoba000/daizu";
+import { string, regexp } from "@ikasoba000/daizu";
 
-const parser = D.string("Hello, world!");
+const parser = string("Hello, world!");
 
 D.parse(parser, "Hello, world!"); // "Hello, world!"
 
-const parser = D.regexp(/Hello, \w+!/);
+const parser = regexp(/Hello, \w+!/);
 
 D.parse(parser, "Hello, daizu!"); // "Hello, daizu!"
 
-const parser = D.regexp(/Hello, (\w+)!/);
+const parser = regexp(/Hello, (\w+)!/);
 
 D.parse(parser, "Hello, daizu!"); // "daizu"
-```
-
-# daizu/helper
-
-```ts
-import D from "@ikasoba000/daizu/helper";
-
-D.string("a").many1(); // Matches aaaaaaaaaaaaaa...
-
-const parser =
-  D.choice(
-    D.regexp(/[a-zA-Z]/).map(x => x.toLowerCase()),
-    D.regexp(/\s*/).ignore()
-  )
-  .many0();
-
-parser.parse("a b \n c    d e\n f") // "a", "b", "c", "d", "e", "f"
 ```
