@@ -9,6 +9,7 @@ import {
   many1,
   map,
   opt,
+  rec,
   string,
   tuple,
 } from "../src/combinator/combinator.js";
@@ -347,4 +348,59 @@ test("test eos", () => {
   expect(parse("qwertyuiop@", parser)).eql({
     ok: false,
   });
+});
+
+test("test rec", () => {
+  const parser = rec<("A" | "B")[]>((parser) =>
+    choice(
+      map(tuple(choice(string("A"), string("B")), opt(parser)), ([x, y]) => [
+        x,
+        ...(y ?? []),
+      ])
+    )
+  );
+
+  expect(parse("A", parser)).eql({
+    ok: true,
+    value: ["A"],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 1,
+    },
+  } satisfies ParserResult<string[]>);
+
+  expect(parse("B", parser)).eql({
+    ok: true,
+    value: ["B"],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 1,
+    },
+  } satisfies ParserResult<string[]>);
+
+  expect(parse("ABAB", parser)).eql({
+    ok: true,
+    value: ["A", "B", "A", "B"],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 4,
+    },
+  } satisfies ParserResult<string[]>);
+
+  expect(parse("AABB", parser)).eql({
+    ok: true,
+    value: ["A", "A", "B", "B"],
+    range: {
+      startLine: 0,
+      startColumn: 0,
+      endLine: 0,
+      endColumn: 4,
+    },
+  } satisfies ParserResult<string[]>);
 });

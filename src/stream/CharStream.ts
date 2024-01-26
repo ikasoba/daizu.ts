@@ -27,15 +27,15 @@ export class CharStream implements CharStreamable {
   }
 
   next(): IteratorResult<string> {
-    if (this.isDone) {
-      return {
-        done: true,
-        value: undefined,
-      };
-    } else if (this.buffer.length) {
+    if (this.buffer.length) {
       return {
         done: false,
         value: this.buffer.shift()!,
+      };
+    } else if (this.isDone) {
+      return {
+        done: true,
+        value: undefined,
       };
     } else {
       const res = this.iter.next();

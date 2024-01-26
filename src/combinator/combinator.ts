@@ -281,3 +281,17 @@ export function eos(): ParserType<Ignored> {
     }
   };
 }
+
+export function rec<T>(
+  fn: (self: ParserType<T>) => ParserType<T>
+): ParserType<T> {
+  let parser: ParserType<T> | undefined;
+
+  const self: ParserType<T> = function* (pos) {
+    parser ??= fn(self);
+
+    return yield* parser(pos);
+  };
+
+  return self;
+}

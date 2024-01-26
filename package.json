@@ -6,6 +6,15 @@
   "exports": {
     ".": {
       "import": "./dist/index.js"
+    },
+    "./combinator": {
+      "import": "./dist/combinator/index.js"
+    },
+    "./lexer": {
+      "import": "./dist/lexer/index.js"
+    },
+    "./stream": {
+      "import": "./dist/stream/index.js"
     }
   },
   "scripts": {

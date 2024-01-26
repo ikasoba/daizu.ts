@@ -32,17 +32,17 @@ pnpm i @ikasoba000/daizu
 # Hello, world!
 
 ```ts
-import { string, regexp } from "@ikasoba000/daizu";
+import { parse, string, charRange, many1, map } from "@ikasoba000/daizu";
 
-const parser = string("Hello, world!");
+const helloWorld = string("Hello, world!");
 
-D.parse(parser, "Hello, world!"); // "Hello, world!"
+parse("Hello, world!", helloWorld); // "Hello, world!"
 
-const parser = regexp(/Hello, \w+!/);
+const digits = many1(charRange("0", "9"));
 
-D.parse(parser, "Hello, daizu!"); // "Hello, daizu!"
+parse("0123", digits); // "0", "1", "2", "3"
 
-const parser = regexp(/Hello, (\w+)!/);
+const integer = map(digits, x => parseInt(x.join("")));
 
-D.parse(parser, "Hello, daizu!"); // "daizu"
+parse("100", integer); // 100
 ```

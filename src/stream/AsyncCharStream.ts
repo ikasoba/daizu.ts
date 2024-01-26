@@ -31,15 +31,15 @@ export class AsyncCharStream implements AsyncCharStreamable {
   }
 
   async next(): Promise<IteratorResult<string>> {
-    if (this.isDone) {
-      return {
-        done: true,
-        value: undefined,
-      };
-    } else if (this.buffer.length) {
+    if (this.buffer.length) {
       return {
         done: false,
         value: this.buffer.shift()!,
+      };
+    } else if (this.isDone) {
+      return {
+        done: true,
+        value: undefined,
       };
     } else {
       const res = await this.iter.next();
